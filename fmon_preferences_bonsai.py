@@ -3,29 +3,31 @@ FMON MODULE
 Preferences (Constants in Freely Moving Olfactory Navigation Task)
 
 Written By: Sarah Stednitz (sstednit@uoregon.edu) & Teresa Findley (tmfindley15@gmail.com)
-Last Updated: 01.04.18, Teresa Findley
+Last Updated: 2.24.21, Dorian Yeh
 '''
-
+from numpy.random import choice
 #     [USER INPUT]     #
 
 experimenter = 'Dorian Yeh' #your full name
-trainer = 'none' #who is training you? (if applicable -- if no one, put 'none') 
-sex = 'M' #of mouse, not experimenter (female or male)
-mouse_id = "2135" #mouse subject number
-initial_weight = '24.53' #in grams
-group_name = "90-10" #what experiment are you running? (OPTIONS: trainer1, trainer2, 100-0, 80-20, 60-40, interleaved, abs-conc, non-spatial, nostril-occlusion) 
+trainer = 'None' #who is training you? (if applicable -- if no one, put 'none') 
+sex = 'F' #of mouse, not experimenter (female or male)
+mouse_id = "2152" #mouse subject number
+initial_weight = '19.91' #in grams
+group_name = "100-0" #what experiment are you running? (OPTIONS: trainer1, trainer2, 100-0, 80-20, 60-40, interleaved, abs-conc, non-spatial, nostril-occlusion) 
 #IMPORTANT: trainer1 and trainer2 are run through separate codes (labeled trainer#1 and trainer#2)...everything else runs in MASTERCODE
-sniffing = 'yes' #is the sniff wire plugged in? (yes, no) 
-percentinvial = '1' #what percent of odorant is in the odor vial (should be written on the label) 
+sniffing = 'no' #is the sniff wire plugged in? (yes, no) 
+percentinvial= '0.01' #what percent of odorant is in the odor vial (should be written on the label) 
 occluded_nostril = 'none' #is a nostril occluded? (none, left, right, left-sham, right-sham)
-wcL = '6.95'#left water port calibration (how many microliters per reward?)
-wcR = '7.11' #right water port calibration
-wcIP = 'NC' #initiation water port calibration
-odortype = 'pinene(7)' #odor identity (pinene, octanol, amyl acetate, methyl salicate, etc.)
+wcL = '6.96'#left water port calibration (how many microliters per reward?)
+wcR = '6.95' #right water port calibration
+wcIP = '6.67' #initiation water port calibration
+odortype = '2-PE' #odor identity (pinene, octanol, amyl acetate, methyl salicate, etc.)
 
 side_bias = 0; #set to 0 for left and right trials, set to 1 for only right trials, set to 2 for only left trials 
-odor_vial = 7 #where is your odor? (KEY: 6 - blank, 7 - blank, 8 - pinene)
-odor_vial2 = 8 #0.1% pinene vial
+
+#Odor vials! Key: 6 = blank, 7 = vanillin (1%), 8 = 2-PE (0.01%)
+odor_vial = 8 #main odor (7 = vanillin), 8 = 2PE
+alternate_vial = 8 #alternate odor
 blank_vial = 6
 
 #Only for non-spatial experiments
@@ -70,10 +72,8 @@ port='\\\\.\\COM5'; tnsyport = '\\\\.\\COM4';
 if group_name == 'trainer1' or group_name == 'trainer2' or group_name == 'trainer2_non-spatial':
     sessionlength = 30#in minutes
 
-if group_name == '100-0' or group_name == '90-10' or group_name == '80-20' or group_name == '60-40':
-    #or group_name == '90-10'
+if group_name == '100-0' or group_name == '90-10' or group_name == '80-20' or group_name == '60-40' or group_name =='90-10_alt' or group_name == '90-10_interleaved':
     sessionlength = 40 #in minutes
-
 
     
 if group_name == 'interleaved' or group_name == 'abs-conc' or group_name == 'non-spatial' or group_name == 'nostril-occlusion' or group_name == 'mineral-oil' or group_name == 'thresholding':

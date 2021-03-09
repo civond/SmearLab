@@ -13,19 +13,23 @@ Last Updated: 10.27.2020 (Dorian Yeh)
 
 ##IMPORTS
 ##libraries
+from numpy.random import choice
+
 import numpy as np, cv2, os, sys
 from timeit import default_timer as timer
-import time, math, random, datetime
+import time, math, datetime, random
 import OSC,threading, Queue
 import nidaqmx, ctypes
 import matplotlib.pyplot as plt
 from nidaqmx.constants import AcquisitionType, Edge
 from nidaqmx.stream_readers import AnalogMultiChannelReader
+
 ##local modules
 from fmon_preferences_bonsai import *
 import fmon_datamgt, fmon_tracking, fmon_serial
 
 ##INITIATE VARIABLES
+
 session_num = 1; trial_num = 1; state = 1; prep_odor = True; iti_delay = iti_correct; #trial information
 correct0=0; correct1=0; correct2=0; correct3=0; correct4=0; total0=0; total1 = 0; total2=0; total3=0; total4=0; #online statistics
 correct0L=0; correct1L=0; correct2L=0; correct3L=0; correct4L=0; total0L=0; total1L=0; total2L=0; total3L=0; total4L=0;
@@ -60,6 +64,7 @@ reader = AnalogMultiChannelReader(ni_data.in_stream)
 section,section_center=fmon_tracking.calc_partitions() #online tracking: gridline deliniation
 triallist,odorconditionlist = fmon_datamgt.randomize_trials(random_groupsize,total_groupsize) #randomize trials
 fmon_serial.close_all_valves() #turn off all hardware
+
 #Session Summary
 
 #Create/Open Data Files
@@ -111,18 +116,15 @@ print ("Session Started.")
 
 
 #     [MAIN CODE]     #
-
 while True: 
 #   [State *](occurs in all states)
     #Nosepoke & Timer
-
     while ard.inWaiting() > 0: #check nosepoke status
         msg = fmon_serial.nose_poke_status(msg)   
     if timer() - session_start >= session_length:
         fmon_serial.close_all_valves()
         reasonforend = "Auto Session End"
         break
-
     #Online Tracking 
     nose = [qnosex.get(),qnosey.get()]; #check nose position
     section_occupancy = fmon_tracking.detect_mouse_partitions(nose,section_center,
@@ -144,14 +146,6 @@ while True:
             fraction_right = "MS(R):   "+str(correct0R)+"/"+str(total0R)+".     "+str(correct1R)+"/"+str(total1R)+".     "+str(correct2R)+"/"+str(total2R)+".     "+str(correct3R)+"/"+str(total3R)+". "
         if group_name != 'abs-conc' and group_name != 'non-spatial' and group_name != 'thresholding':
             cv2.putText(frame,'100-0 | 90-10 | 80-20 | 60-40 | CONTROL', (130,(height/2)-40), cv2.FONT_HERSHEY_PLAIN, 1, (0,0,0))
-            
-            
-        #90-10--------------------------------------------------
-        #if group_name == '90-10':
-         #   cv2.putText(frame,'xxx    90-10    xxx   CONTROL', (130,(height/2)-40), cv2.FONT_HERSHEY_PLAIN, 1, (0,0,0))
-        #----------------------------------------------------
-        
-        
         if group_name == 'mineral-oil':
             cv2.putText(frame,'M6.80-20   M6.50-50   M7.80-20   M7.50-50', (130,(height/2)-40), cv2.FONT_HERSHEY_PLAIN, 1, (0,0,0))
         cv2.putText(frame,fraction_correct, (80,(height/2)-20), cv2.FONT_HERSHEY_PLAIN, 1, (0,0,0))
@@ -254,7 +248,6 @@ while True:
 #   [State 3] REWARD DELIVERY
     if state == 3:    
         #Correct Responses
-      
         if response == 1:            
             if msg == correctpoke: 
                 if active_valve == 1: #Increment Active Statistics
@@ -266,10 +259,12 @@ while True:
                         total2 = total2 + 1; total2R = total2R + 1; correct2 = correct2 + 1; correct2R = correct2R + 1
                     if concentration_setting == 3: 
                         total3 = total3 + 1; total3R = total3R + 1; correct3 = correct3 + 1; correct3R = correct3R + 1
-                    #90-10R
+                    #90-10 R correct-------------
                     if concentration_setting == 4: 
                         total4 = total4 + 1; total4R = total4R + 1; correct4 = correct4 + 1; correct4R = correct4R + 1
-                    
+                    if concentration_setting == 5: 
+                        total4 = total4 + 1; total4R = total4R + 1; correct4 = correct4 + 1; correct4R = correct4R + 1
+                    #----------------------------
                 if active_valve == 2:
                     if concentration_setting == 0:
                         total0 = total0 + 1; total0L = total0L + 1; correct0 = correct0 + 1; correct0L = correct0L + 1
@@ -279,8 +274,10 @@ while True:
                         total2 = total2 + 1; total2L = total2L + 1; correct2 = correct2 + 1; correct2L = correct2L + 1
                     if concentration_setting == 3: 
                         total3 = total3 + 1; total3L = total3L + 1; correct3 = correct3 + 1; correct3L = correct3L + 1
-                    #90-10L--------------------------
+                    #90-10 L correct--------------------------
                     if concentration_setting == 4: 
+                        total4 = total4 + 1; total4L = total4L + 1; correct4 = correct4 + 1; correct4L = correct4L + 1
+                    if concentration_setting == 5: 
                         total4 = total4 + 1; total4L = total4L + 1; correct4 = correct4 + 1; correct4L = correct4L + 1
                     #-------------------------------
                 fmon_serial.deliver_reward(msg) #deliver reward
@@ -302,9 +299,11 @@ while True:
                         total2 = total2 + 1; total2R = total2R + 1;
                     if concentration_setting == 3: 
                         total3 = total3 + 1; total3R = total3R + 1;
-                    #90-10R wrong-----------------
+                    #90-10 R wrong-----------------
                     if concentration_setting == 4: 
                         total4 = total4 + 1; total4R = total4R + 1;
+                    if concentration_setting == 5:
+                         total4 = total4 + 1; total4R = total4R + 1;
                     #----------------------------
                         
                 if active_valve == 2:
@@ -316,9 +315,11 @@ while True:
                         total2 = total2 + 1; total2L = total2L + 1;
                     if concentration_setting == 3: 
                         total3 = total3 + 1; total3L = total3L + 1;
-                    #90-10 wrong-------------
+                    #90-10 L wrong-------------
                     if concentration_setting == 4: 
                         total4 = total4 + 1; total4L = total4L + 1;
+                    if concentration_setting == 5:
+                         total4 = total4 + 1; total4L = total4L + 1;
                     #---------------------------
                 print("No Reward Delivered.") #report no reward
                 tend = timer() - session_start #timestamp trial end & record trial summary info 
@@ -346,10 +347,6 @@ print ("Data Collection Ended") #report end of data collection
 ##EXIT PROGRAM
 fmon_serial.close_all_valves(); cv2.destroyAllWindows(); ard.close(); tnsy.close()
 
-#fraction_correct = "T: "+str(correct0)+"/"+str(total0)+".  "+str(correct1)+"/"+str(total1)+".  "+str(correct2)+"/"+str(total2)+".  "+str(correct3)+"/"+str(total3)+". "  #session stats
-#fraction_left = "L: "+str(correct0L)+"/"+str(total0L)+".  "+str(correct1L)+"/"+str(total1L)+".  "+str(correct2L)+"/"+str(total2L)+".  "+str(correct3L)+"/"+str(total3L)+". "
-#fraction_right = "R: "+str(correct0R)+"/"+str(total0R)+".  "+str(correct1R)+"/"+str(total1R)+".  "+str(correct2R)+"/"+str(total2R)+".  "+str(correct3R)+"/"+str(total3R)+". "
-
 fraction_correct = "T: "+str(correct0)+"/"+str(total0)+".  "+str(correct4)+"/"+str(total4)+".  "+str(correct1)+"/"+str(total1)+".  "+str(correct2)+"/"+str(total2)+".  "+str(correct3)+"/"+str(total3)+"."  #session stats
 fraction_left = "L: "+str(correct0L)+"/"+str(total0L)+".  "+str(correct4L)+"/"+str(total4L)+".  "+str(correct1L)+"/"+str(total1L)+".  "+str(correct2L)+"/"+str(total2L)+".  "+str(correct3L)+"/"+str(total3L)+"."
 fraction_right = "R: "+str(correct0R)+"/"+str(total0R)+".  "+str(correct4R)+"/"+str(total4R)+".  "+str(correct1R)+"/"+str(total1R)+".  "+str(correct2R)+"/"+str(total2R)+".  "+str(correct3R)+"/"+str(total3R)+"."
@@ -361,8 +358,6 @@ if group_name == 'abs-conc' or group_name == 'non-spatial':
         print ('   xxxx 80-20(1%) 80-20(0.1%) CONTROL')
     elif group_name == 'non-spatial':
         print ('   xxxx M.S.      Octanol     CONTROL')
-   # elif group_name == '90-10':
-     #   print('    90-10  CONTROL')
 else: print ('   100-0 90-10 80-20 60-40 CONTROL')
 print (fraction_correct)
 print (fraction_left)

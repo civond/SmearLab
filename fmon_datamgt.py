@@ -114,10 +114,14 @@ def randomize_trials(random_groupsize,total_groupsize):
             randygen2 = [1]*int(random_groupsize*.4)+[2]*int(random_groupsize*.4)+[3]*int(random_groupsize*.2)
         if group_name == '100-0' or group_name == 'trainer2' or group_name == 'trainer2_non-spatial':
             randygen2 = [0]*int(random_groupsize*.9)+[3]*int(random_groupsize*.1)
+        #-----------------------
         if group_name == '90-10':
             randygen2 = [4]*int(random_groupsize*.9)+[3]*int(random_groupsize*.1)
-
-            
+        if group_name == '90-10_alt':
+            randygen2 = [5]*int(random_groupsize*.9)+[3]*int(random_groupsize*.1)
+        if group_name == '90-10_interleaved':
+            randygen2 = [4]*int(random_groupsize*.45)+[5]*int(random_groupsize*.45)+[3]*int(random_groupsize*.1)
+        #-----------------------    
         if group_name == '80-20' or group_name == 'non-spatial' or group_name == 'nostril-occlusion':
             randygen2 = [1]*int(random_groupsize*.9)+[3]*int(random_groupsize*.1)
         if group_name == '60-40':
